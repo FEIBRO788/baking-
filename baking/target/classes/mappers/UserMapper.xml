@@ -26,4 +26,26 @@
         </set>
         where id=#{id};
     </update>
+    <select id="selectImgUrlById" resultType="String" >
+        select img_url from t_user where id =#{id};
+    </select>
+    <update id="updateUserUrlImg">
+        update t_user
+        set img_url=#{imgUrl}
+        where id=#{id};
+    </update>
+    <select id="adminSelectUserMessage" resultType="cn.tedu.baking.pojo.VO.userAdminVO">
+        select id,
+               user_name,
+               nick_name,
+               is_admin,
+               create_time,
+               img_url
+        from t_user;
+    </select>
+    <delete id="adminDeleteUserById">
+        delete from t_user
+        where id =#{id};
+    </delete>
+
 </mapper>

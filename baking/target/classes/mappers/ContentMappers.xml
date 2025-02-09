@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+           PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.baking.mapper.ContentMapper">
+    <insert id="insertContent">
+        INSERT INTO t_content(title, img_url, video_url, content, type,
+        view_count, comment_count, create_by,
+        create_time, brief, category_id)
+        VALUES (#{title}, #{imgUrl}, #{videoUrl}, #{content}, #{type},
+        0, 0, #{createBy}, #{createTime}, #{brief}, #{categoryId})
+    </insert>
+    <select id="selectMessageById" resultType="cn.tedu.baking.pojo.VO.ContentManagementVO">
+        select id,
+        create_by,
+        title,
+        img_url,
+        type,
+        view_count,
+        comment_count,
+        create_time,
+        brief from t_content
+        where create_by=#{id}
+        and type=#{type}
+    </select>
+    <update id="updateMessage">
+        update t_content
+        <set>
+            <if test="title!=null">title=#{title},</if>
+            <if test="imgUrl!=null">img_url=#{imgUrl},</if>
+            <if test="videoUrl!=null">video_url=#{videoUrl},</if>
+            <if test="content!=null">content=#{content},</if>
+            <if test="type!=null">type=#{type},</if>
+            <if test="updateBy!=null">update_by=#{updateBy},</if>
+            <if test="updateTime!=null">update_time=#{updateTime},</if>
+            <if test="brief!=null">brief=#{brief},</if>
+            <if test="categoryId!=null">category_id=#{categoryId},</if>
+
+
+        </set>
+        where id=#{id};
+    </update>
+</mapper>
