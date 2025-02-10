@@ -8,5 +8,10 @@
         from t_category
         where type=#{type};
     </select>
+    <resultMap id="CategoryVO" type="cn.tedu.baking.pojo.VO.CategoryVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <!-- 其他字段映射 -->
+    </resultMap>
     
 </mapper>

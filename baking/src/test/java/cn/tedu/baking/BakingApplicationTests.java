@@ -4,10 +4,7 @@ import cn.tedu.baking.mapper.CategoryMapper;
 import cn.tedu.baking.mapper.ContentMapper;
 import cn.tedu.baking.mapper.UserMapper;
 import cn.tedu.baking.pojo.DOT.UserDOT;
-import cn.tedu.baking.pojo.VO.CategoryVO;
-import cn.tedu.baking.pojo.VO.ContentManagementVO;
-import cn.tedu.baking.pojo.VO.UserVO;
-import cn.tedu.baking.pojo.VO.userAdminVO;
+import cn.tedu.baking.pojo.VO.*;
 import cn.tedu.baking.pojo.entity.Content;
 import cn.tedu.baking.pojo.entity.User;
 import com.sun.media.jfxmediaimpl.HostUtils;
@@ -150,6 +147,12 @@ class BakingApplicationTests {
         content.setTitle("不买亏死的花生酱酥饼");
         int i = contentMapper.updateMessage(content);
         System.out.println(i);
+    }
+    //模拟更新稿件时前端显示的稿件信息
+    @Test
+    public void testSelectById(){
+        ContentUpdateVO contentUpdateVO = contentMapper.selectByIdForUpdate(12l);
+        System.out.println(contentUpdateVO);
     }
 
 }

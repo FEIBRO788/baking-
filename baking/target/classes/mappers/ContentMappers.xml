@@ -40,4 +40,22 @@
         </set>
         where id=#{id};
     </update>
+    <select id="selectByIdForUpdate" resultMap="select">
+        select t.id,
+               t.title,
+               t.img_url,
+               t.video_url,
+               t.content,
+               t.category_id,
+               y.name y_name
+
+        from t_content t left join t_category y on
+        t.category_id=y.id
+        where t.id=#{id};
+    </select>
+    <resultMap id="select" type="cn.tedu.baking.pojo.VO.ContentUpdateVO" autoMapping="true">
+
+        <id column="id" property="id"/>
+        <collection property="categoryVO" resultMap="cn.tedu.baking.mapper.CategoryMapper.CategoryVO" columnPrefix="y_"/>
+    </resultMap>
 </mapper>
