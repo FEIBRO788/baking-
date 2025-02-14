@@ -22,4 +22,6 @@ public interface ContentMapper {
     List<ContentSimpleVO> selectHot();
     List<ContentSimpleVO> selectByType(Integer type);
     List<ContentIndexVO> selectByWD(String wd);
+    List<ContentAdminVO> selectByAdmin(Integer type);
+
 }

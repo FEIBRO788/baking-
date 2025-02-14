@@ -13,3 +13,7 @@ mybatis:
 logging:
   level:
     cn.tedu.baking: debug #??cn.tedu.baking???????
+
+pagehelper:
+  helper-dialect: mysql #指定数据库
+  support-methods-arguments: true

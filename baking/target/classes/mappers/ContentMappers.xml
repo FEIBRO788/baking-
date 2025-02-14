@@ -138,6 +138,18 @@
         where co.title like concat('%',#{wd},'%') <!-- 注意去掉参数周围的单引号 -->
         order by view_count desc ;
     </select>
+    <select id="selectByAdmin" resultType="cn.tedu.baking.pojo.VO.ContentAdminVO">
+        select id,
+               title,
+               img_url,
+               view_count,
+               comment_count,
+               brief,
+               category_id,
+               create_time
+            from t_content
+        where type=#{type}
+    </select>
     <resultMap id="select" type="cn.tedu.baking.pojo.VO.ContentUpdateVO" autoMapping="true">
 
         <id column="id" property="id"/>

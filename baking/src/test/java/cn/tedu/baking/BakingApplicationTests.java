@@ -215,5 +215,13 @@ class BakingApplicationTests {
             System.out.println(contentIndexVO);
         }
     }
+    //模拟后台管理根据一级分类查询稿件信息
+    @Test
+    public void testSelectAdmin(){
+        List<ContentAdminVO> contentAdminVOS = contentMapper.selectByAdmin(2);
+        for (ContentAdminVO contentAdminVO:contentAdminVOS){
+            System.out.println(contentAdminVO);
+        }
+    }
 
 }

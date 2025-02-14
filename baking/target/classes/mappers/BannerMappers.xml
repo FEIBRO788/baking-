@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.baking.mapper.BannerMapper">
+    <select id="selectBannerAll" resultType="cn.tedu.baking.pojo.VO.BannerVO">
+        select id,
+               img_url
+        from t_banner
+
+    </select>
+    <select id="selectBannerAdmin" resultType="cn.tedu.baking.pojo.VO.BannerAdminVO">
+        select id,
+               img_url,
+               create_time
+        from t_banner
+    </select>
+    <delete id="deleteBannerById">
+        delete from t_banner
+        where id=#{id}
+
+    </delete>
+</mapper>
