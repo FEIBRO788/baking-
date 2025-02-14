@@ -154,5 +154,66 @@ class BakingApplicationTests {
         ContentUpdateVO contentUpdateVO = contentMapper.selectByIdForUpdate(12l);
         System.out.println(contentUpdateVO);
     }
+    //模拟删除稿件
+    @Test
+    public void testDeleteById(){
+        System.out.println(contentMapper.deleteById(27)>0?"delete succeed":"delete failed");
+
+
+    }
+    //测试首页显示稿件列表
+    @Test
+    public void testSelectByTypeAndCategoryid(){
+        List<ContentIndexVO> contentIndexVOS = contentMapper.selectByTypeAndCategoryId(1, 3);
+        for (ContentIndexVO contentIndexVO:contentIndexVOS){
+            System.out.println(contentIndexVO);
+        }
+
+    }
+    //测试根据id查询稿件详细信息
+    @Test
+    public void testSelectByIdForDetail(){
+        ContentDetailVO contentDetailVO = contentMapper.selectByIdForDetail(13);
+        System.out.println(contentDetailVO);
+    }
+    //测试根据id更改浏览量
+    @Test
+    public void testUpdateViewCountById(){
+        System.out.println(contentMapper.updateViewCountById(11l));
+    }
+    //测试查询作者其他稿件
+    @Test
+    public void testSelectOtherById(){
+        List<ContentSimpleVO> contentSimpleVOS = contentMapper.selectByUserId(11l);
+        for (ContentSimpleVO contentSimpleVO:contentSimpleVOS){
+            System.out.println(contentSimpleVO);
+        }
+
+    }
+    //测试查询热门作品
+    @Test
+    public void testSelectHot(){
+        List<ContentSimpleVO> contentSimpleVOS = contentMapper.selectHot();
+
+        for (ContentSimpleVO contentSimpleVO:contentSimpleVOS){
+            System.out.println(contentSimpleVO);
+        }
+    }
+    //根据一级分类查询稿件
+    @Test
+    public void testSelectByType(){
+        List<ContentSimpleVO> contentSimpleVOS = contentMapper.selectByType(1);
+        for (ContentSimpleVO contentSimpleVO:contentSimpleVOS){
+            System.out.println(contentSimpleVO);
+        }
+    }
+    //根据关键字查询稿件
+    @Test
+    public void testSelectByWD(){
+        List<ContentIndexVO> contentIndexVOS = contentMapper.selectByWD("花");
+        for (ContentIndexVO contentIndexVO:contentIndexVOS){
+            System.out.println(contentIndexVO);
+        }
+    }
 
 }

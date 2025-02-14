@@ -53,10 +53,103 @@
         t.category_id=y.id
         where t.id=#{id};
     </select>
+    <delete id="deleteById" >
+        delete from t_content
+        where id=#{id};
+    </delete>
+    <select id="selectByTypeAndCategoryId" resultMap="select2" >
+        select c.id,
+               c.title,
+               c.img_url cImgUrl,
+               u.nick_name,
+               u.img_url uImgUrl,
+               ca.name
+               from t_category ca right join t_content c on ca.id=c.category_id
+        left join t_user u on c.create_by =u.id
+        where c.type=#{type}
+          <if test="categoryId!=0">and c.category_id=#{categoryId}</if>
+        order by c.create_time desc limit 0,4
+
+
+    </select>
+    <select id="selectByIdForDetail" resultType="cn.tedu.baking.pojo.VO.ContentDetailVO">
+        SELECT c.id,
+               c.title,
+               c.video_url,
+               c.content,
+               c.type,
+               c.view_count,
+               c.comment_count,
+               c.create_time,
+               c.brief,
+               u.nick_name,
+               u.img_url userImgUrl,
+               u.id      userId
+        FROM t_content c
+                 INNER JOIN t_user u ON c.create_by = u.id
+        WHERE c.id = #{id}
+    </select>
+    <update id="updateViewCountById">
+        update t_content
+        set view_count=view_count+1
+        where id=#{id}
+    </update>
+    <select id="selectByUserId" resultType="cn.tedu.baking.pojo.VO.ContentSimpleVO">
+        select id,
+               title,
+               img_url,
+               create_time
+        from t_content
+        where id!=#{id}
+        and create_by=(select create_by
+            from t_content
+            where id=#{id})
+        order by create_time desc limit 0,4
+
+    </select>
+    <select id="selectHot" resultType="cn.tedu.baking.pojo.VO.ContentSimpleVO">
+        select id,
+               title,
+               img_url,
+               create_time
+        from t_content
+        order by view_count desc
+        limit 0,4
+    </select>
+    <select id="selectByType" resultType="cn.tedu.baking.pojo.VO.ContentSimpleVO">
+        select id,
+               title,
+               img_url,
+               create_time
+        from t_content
+        where type=#{type}
+        order by view_count desc
+    </select>
+    <select id="selectByWD" resultMap="select2">
+        select co.id,
+        co.title,
+        co.img_url cImgUrl,
+        u.nick_name,
+        u.img_url uImgUrl,
+        ca.name
+        from t_user u right join t_content co
+        on u.id=co.create_by left join t_category ca
+        on co.category_id=ca.id
+        where co.title like concat('%',#{wd},'%') <!-- 注意去掉参数周围的单引号 -->
+        order by view_count desc ;
+    </select>
     <resultMap id="select" type="cn.tedu.baking.pojo.VO.ContentUpdateVO" autoMapping="true">
 
         <id column="id" property="id"/>
 <!--        改ContentMappers.xml中的collection引用，使用namespace + resultMap id格式：-->
         <collection property="categoryVO" resultMap="cn.tedu.baking.mapper.CategoryMapper.CategoryVO" columnPrefix="y_"/>
+    </resultMap>
+    <resultMap id="select2" type="cn.tedu.baking.pojo.VO.ContentIndexVO" autoMapping="true">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="cImgUrl" property="imgUrl"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="uImgUrl" property="userImgUrl"/>
+        <result column="name" property="categoryName"/>
     </resultMap>
 </mapper>
