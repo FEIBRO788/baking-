@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.baking.mapper.ContentMapper">
+    <insert id="insertContent">
+        <!--
+        view_count, comment_count 是浏览量和评论量,新增的稿件一定是0
+        update_by, update_time 不需要录入,因为新增不是修改
+        brief的值不需要我们处理,前端页面会自动截取正文content的前50个字
+        -->
+        INSERT INTO t_content(title, img_url, video_url, content, type, view_count, comment_count,
+        create_by,create_time, brief, category_id)
+        VALUES (#{title},#{imgUrl},#{videoUrl},#{content},#{type},0,0,#{createBy},#{createTime},#{brief},#{categoryId})
+    </insert>
+    <!--
+        需要两表联查,在查询稿件信息时,还查询出对应的二级类别名称,
+        关联条件就是t_content表的category_id字段和t_category表的id字段相同,
+        并且由于ContentManagementVO实体类中声明了二级分类名称的属性categoryName,
+        所以SQL中cat.name 必须起别名为categoryName,否则MyBatis自动注入不进去,
+        并且此处的SQL是当前用户查询自己的类别稿件,所以需要根据create_by字段约束
+  -->
+    <select id="selectContentByTypeAndUserId" resultType="cn.tedu.baking.pojo.vo.ContentManagementVO">
+        SELECT con.id,
+               con.title,
+               con.img_url,
+               con.type,
+               con.view_count,
+               con.comment_count,
+               con.create_time,
+               con.brief,
+               cat.name categoryName
+        FROM t_content con
+                 JOIN t_category cat ON con.category_id = cat.id
+        WHERE con.type = #{type}
+          AND con.create_by = #{id}
+    </select>
+
+    <select id="selectUpdateInfoById" resultType="cn.tedu.baking.pojo.vo.ContentUpdateVO">
+        SELECT id,
+               title,
+               img_url,
+               video_url,
+               content,
+               type,
+               create_by,
+               category_id
+        FROM t_content
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateContentInfo">
+        UPDATE t_content
+        <set>
+            <if test="title != null and title !=''">title = #{title},</if>
+            <if test="imgUrl != null and imgUrl !=''">img_url = #{imgUrl},</if>
+            <if test="brief != null and brief !=''">brief = #{brief},</if>
+            <if test="videoUrl != null and videoUrl !=''">video_url = #{videoUrl},</if>
+            <if test="type != null and type !=''">type = #{type},</if>
+            <if test="categoryId != null and categoryId !=''">category_id = #{categoryId},</if>
+            <if test="updateBy != null and updateBy !=''">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="content != null and content !=''">content = #{content}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteContentById">
+        DELETE
+        FROM t_content
+        WHERE id = #{id}
+    </delete>
+    <!--
+    我们需要通过该SQL查询到 稿件id、稿件封面、稿件标题、头像、作者昵称和二级分类名
+    通过t_content表能直接获取稿件id、稿件封面和稿件标题
+    需要关联t_user表,获取头像和作者昵称,关联条件是 t_content表的create_by字段和t_user表的id
+    需要关联t_category表,获取二级分类名,关联条件是 t_content表的category_id字段和t_category表的id
+    并且由于映射的实体类属性名为categoryName,所以SQL中cat.name 必须起别名为categoryName,
+    否则MyBatis自动注入不进去
+    由于前端点击首页的全部是查询全部一级分类的稿件信息,而点击二级分类时,则会查询二级分类的信息,
+    所以我们当前SQL语句需要动态SQL优化一下,有如下的约定
+    前端如果查询所有的一级分类信息,则传递的categoryId是0
+    如果查询的是对应的二级分类信息,则传递的categoryId是对应的二级分类的id值
+    并且首页默认查询的是根据创建时间排序的前四条稿件-->
+    <select id="selectContentByTypeAndCategoryId" resultType="cn.tedu.baking.pojo.vo.ContentIndexVO">
+        SELECT c.id,
+        c.title,
+        c.img_url,
+        u.nick_name,
+        u.img_url userImgUrl,
+        cat.name categoryName
+        FROM t_content c
+        JOIN t_user u ON c.create_by = u.id
+        JOIN t_category cat ON c.category_id = cat.id
+        WHERE c.type = #{type}
+        <if test="categoryId != 0">AND c.category_id = #{categoryId}</if>
+        ORDER BY c.create_time DESC LIMIT 0,4
+    </select>
+
+    <select id="selectContentByType" resultType="cn.tedu.baking.pojo.vo.ContentIndexVO">
+        SELECT c.id,
+               c.title,
+               c.img_url,
+               u.nick_name,
+               u.img_url userImgUrl,
+               cat.name  categoryName
+        FROM t_content c
+                 JOIN t_user u ON c.create_by = u.id
+                 JOIN t_category cat ON c.category_id = cat.id
+        WHERE c.type = #{type}
+        ORDER BY c.create_time DESC
+    </select>
+    <!--
+    我们需要查询的内容: 稿件id、稿件标题、摘要、视频路径、正文内容、一级分类、访问量、评论量、创建时间、昵称、作者头像和用户id
+    查询t_content可以直接获取 稿件id、稿件标题、摘要、视频路径、正文内容、一级分类、访问量、评论量和创建时间
+    关联t_user表中可以获取 昵称、作者头像和用户id
+    并且ContentDetailVO声明的userImgUrl和userId要映射SQL中的u.img_url和u.id字段,
+    所以这两个字段要起别名,否则自动映射会失败
+    -->
+    <select id="selectContentDetailById" resultType="cn.tedu.baking.pojo.vo.ContentDetailVO">
+        SELECT c.id,
+               c.title,
+               c.video_url,
+               c.content,
+               c.type,
+               c.view_count,
+               c.comment_count,
+               c.create_time,
+               c.brief,
+               u.id      userId,
+               u.nick_name,
+               u.img_url userImgUrl
+        FROM t_content c
+                 JOIN t_user u ON c.create_by = u.id
+        WHERE c.id = #{id}
+    </select>
+    <!--
+        修改稿件记录的view_count在原有基础上自增1
+   -->
+    <update id="updateViewCountById">
+        UPDATE t_content
+        SET view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+    <!--
+        占位符的名字最好使用userId,因为我们的接口指定的参数名是userId
+        查询作者的其他文章,所以不应该包含当前文章,故条件中应该将当前文章筛出
+-->
+    <select id="selectContentOtherInfoByUserId" resultType="cn.tedu.baking.pojo.vo.ContentSimpleVO">
+        SELECT id,
+               title,
+               img_url,
+               create_time
+        FROM t_content
+        WHERE create_by = #{userId}
+          AND id != #{contentId}
+        ORDER BY create_time DESC
+        LIMIT 0,4
+    </select>
+
+    <!--  需求:根据稿件的浏览量 降序 分页出前4个内容
+              查询 id,title,img_url,create_time  t_content
+              排序 降序 根据浏览量 vive_count  只取4个
+     -->
+    <select id="selectContentHot" resultType="cn.tedu.baking.pojo.vo.ContentSimpleVO">
+        SELECT id,
+               title,
+               img_url,
+               create_time
+        FROM t_content
+        ORDER BY view_count DESC
+        LIMIT 0,4
+    </select>
+    <!--
+    根据关键字搜索稿件,主要是使用模糊查询
+    模糊查询主要是和LIKE关键字以及通配符 % 和 _ 有关
+    % 匹配0到多个任意字符
+    _ 匹配1个任意字符                        '%面包%'
+    CONCAT('%',#{wd},'%') 会进行字符串的拼接 '%#{wd}%'
+    -->
+    <select id="selectContentByWd" resultType="cn.tedu.baking.pojo.vo.ContentIndexVO">
+        SELECT c.id,
+               c.title,
+               c.img_url,
+               u.nick_name,
+               u.img_url userImgUrl,
+               cat.name  categoryName
+        FROM t_content c
+                 JOIN t_user u ON c.create_by = u.id
+                 JOIN t_category cat ON c.category_id = cat.id
+        WHERE c.title LIKE CONCAT('%', #{wd}, '%')
+        ORDER BY c.create_time DESC
+    </select>
+    <!--
+      我们需要查询稿件id、稿件标题、稿件封面、摘要、访问量、评论量、二级分类名和创建时间
+      我们查询t_content表获取稿件id、稿件标题、稿件封面、摘要、访问量、评论量和创建时间
+      关联t_category表,获取二级分类名,关联t_content的category_id字段和t_category的id字段相等可以获取二级分类名
+      -->
+    <select id="selectContentAdminByType" resultType="cn.tedu.baking.pojo.vo.ContentAdminVO">
+        SELECT c.id,
+               c.title,
+               c.img_url,
+               c.view_count,
+               c.comment_count,
+               c.create_time,
+               c.brief,
+               cat.name categoryName
+        FROM t_content c
+                 JOIN t_category cat ON c.category_id = cat.id
+        WHERE c.type = #{type}
+    </select>
+    <!--当该sql执行,给传入的稿件ID的评论量增加1-->
+    <update id="updateCommentCountById">
+        UPDATE t_content
+        SET comment_count = comment_count+1
+        WHERE id = #{contentId}
+    </update>
+
+</mapper>

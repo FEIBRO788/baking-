@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.baking.mapper.LoginrecordMapper">
+    <insert id="insert">
+        insert into t_loginrecord
+        values (null,#{userId},#{logtime})
+    </insert>
+    <select id="selectRecentTime" resultType="cn.tedu.baking.pojo.entity.Loginrecord">
+        select * from t_loginrecord
+        where id=(select max(id)from t_loginrecord);
+    </select>
+</mapper>

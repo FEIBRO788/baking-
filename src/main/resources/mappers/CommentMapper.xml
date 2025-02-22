@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.baking.mapper.CommentMapper">
+    <insert id="insertComment">
+        INSERT INTO t_comment(content, user_id, content_id, create_time)
+        VALUES (#{content}, #{userId}, #{contentId}, #{createTime})
+    </insert>
+
+    <select id="selectCommentByContentId" resultType="cn.tedu.baking.pojo.vo.CommentVO">
+        SELECT c.id,
+               c.content,
+               c.create_time,
+               u.nick_name,
+               u.img_url userImgUrl
+        FROM t_comment c
+                 JOIN t_user u ON c.user_id = u.id
+        WHERE c.content_id = #{contentId}
+        ORDER BY c.create_time DESC
+    </select>
+</mapper>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>练习</title>
+  <!-- import Vue before Element -->
+  <script src="https://cdn.staticfile.org/vue/2.6.14/vue.min.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://cdn.staticfile.org/element-ui/2.15.9/index.min.js"></script>
+  <!--引入Axios-->
+  <script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
+</head>
+<body>
+<h2>form表单形式实现用户登录</h2>
+<form action="/login1" method="post">
+  <div>
+    <label for="username">用户名:</label>
+    <input type="text" id="username" name="userName" required>
+  </div>
+  <div>
+    <label for="password">密码:</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+  <div>
+    <input type="submit" value="登录">
+  </div>
+</form>
+<hr>
+<div id="app">
+  <h2>axios形式用户登录</h2>
+  {{str}}
+  <div>
+   用户名:<input type="text"  v-model="user.userName"> <br>
+  </div>
+  <div>
+    密码：<input type="password" v-model="user.password" ><br>
+  </div>
+  <div>
+    <input type="button" value="登录" @click="login2()">
+  </div>
+</div>
+
+</body>
+</html>
+<script>
+  var v = new Vue({
+    el:"#app",
+    data :{
+      user:{
+        userName:"",
+        password:""
+      },
+      str:""
+    },
+    methods:{
+      login2(){
+        //http://localhost:8088/login2
+        //http://localhost:8088/testdemo.html
+        let form =new FormData();
+        axios.post("/login2",v.user).then(function (r){
+          console.log(r)
+          if (r.data==1){
+            v.str="用户登录成功";
+          }
+          if (r.data==2){
+            v.str="用户密码不正确";
+          }
+          if(r.data==3){
+            v.str="用户名不正确";
+          }
+        })
+      }
+    }
+  });
+</script>
